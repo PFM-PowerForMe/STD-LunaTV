@@ -1,0 +1,6 @@
+#!/command/execlineb -P
+with-contenv
+s6-notifyoncheck
+cd /app
+s6-setuidgid nextjs
+node start.js

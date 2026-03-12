@@ -5,9 +5,9 @@ on:
   workflow_call:
   repository_dispatch:
     types: [pfm-build-event]
-  # push:
-    # branches:
-      # - main
+  push:
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}
