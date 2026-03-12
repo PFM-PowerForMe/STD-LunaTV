@@ -5,9 +5,9 @@ FROM ghcr.io/mtvpls/moontvplus:latest AS fetch
 
 FROM scratch AS runtime
 COPY --from=fetch / /
+COPY --from=s6 / /
 COPY --from=s6-box /etc/s6-overlay /etc/s6-overlay
 COPY --from=s6-box /pfm /pfm
-COPY --from=s6 / /
 COPY --from=kvrocks / /
 COPY rootfs/ /
 
