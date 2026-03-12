@@ -40,7 +40,7 @@ ENV PATH="/command:/pfm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/s
      NEXT_PUBLIC_ENABLE_SOURCE_SEARCH=true
 
 RUN addgroup -g 1002 -S kvrocks && adduser -u 1002 -S kvrocks -G kvrocks
-RUN addgroup -g 1001 -S nodejs && adduser -u 1001 -S nextjs -G nodejs
+# RUN addgroup -g 1001 -S nodejs && adduser -u 1001 -S nextjs -G nodejs
 RUN mkdir -pv /run/kvrocks && \
     chown -R kvrocks:kvrocks /run/kvrocks /var/lib/kvrocks
 RUN chown -R nextjs:nodejs /app
