@@ -1,0 +1,57 @@
+name: 'Auto Update MoonTV Version'
+
+on:
+  schedule:
+    - cron: '0 13 * * *'
+  workflow_dispatch: 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    outputs:
+      has_update: ${{ steps.version_check.outputs.is_updated }}
+    steps:
+      - name: "版本号对比更新"
+        id: version_check
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
+          CURRENT_VERSION: ${{ vars.MOON_TV_VERSION }}
+        run: |
+          echo "正在从远端拉取最新版本..."
+          REMOTE_VERSION=$(curl -s "https://raw.githubusercontent.com/mtvpls/MoonTVPlus/main/VERSION.txt" | tr -d '\n\r" ')
+          
+          echo "☁️ 远端获取版本: [$REMOTE_VERSION]"
+          echo "🏠 仓库当前版本: [$CURRENT_VERSION]"
+          
+          if [ -z "$REMOTE_VERSION" ]; then
+            echo "❌ 无法获取远端版本，远端文件可能为空或网络异常，跳过执行。"
+            exit 1
+          fi
+          
+          if [ "$REMOTE_VERSION" != "$CURRENT_VERSION" ]; then
+            echo "🔄 发现新版本或变量尚未创建，开始更新..."
+            gh variable set MOON_TV_VERSION \
+              --body "$REMOTE_VERSION" \
+              --repo "${{ github.repository }}"
+            echo "✅ 仓库变量 [MOON_TV_VERSION] 已成功更新为: $REMOTE_VERSION"
+            echo "is_updated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "💤 版本一致 ($REMOTE_VERSION)，无需任何操作。"
+            echo "is_updated=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  Repo-Dispatch:
+    needs: check-and-update
+    if: needs.check-and-update.outputs.has_update == 'true'
+    runs-on: ubuntu-slim
+    steps:
+      - name: "Repository Dispatch"
+        uses: PFM-PowerForMe/PFM-Action-RepoDispatch@main
+        with:
+          token: ${{ secrets.SYNC_TOKEN }}
+          repository: ${{ github.repository }}
+          event-type: pfm-build-event
