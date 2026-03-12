@@ -28,3 +28,13 @@ jobs:
       build_pull_source: false
       build_use_tag: false
       build_checkout_ref: main
+      dispatch_event_type: "pfm-deploy-event"
+      dispatch_repos: '["${{ github.repository }}"]'
+
+  Call-koyeb-deploy:
+    needs: Call-build-workflow
+    uses: PFM-PowerForMe/PFM-Action-Public/.github/workflows/deploy-zeabur.yml@main
+    secrets:
+      ZEABUR_TOKEN: ${{ secrets.ZEABUR_TOKEN }}
+      PROJECT_ID: ${{ secrets.PROJECT_ID }}
+      SERVICE_ID: ${{ secrets.SERVICE_ID }}
