@@ -1,6 +1,6 @@
 FROM ghcr.io/pfm-powerforme/s6:latest AS s6
 FROM ghcr.io/pfm-powerforme/s6-box:latest AS s6-box
-FROM ghcr.io/pfm-powerforme/base-kvrocks:latest AS db
+FROM ghcr.io/pfm-powerforme/base-kvrocks:latest AS kvrocks
 FROM ghcr.io/mtvpls/moontvplus:latest AS fetch
 
 FROM scratch AS runtime
@@ -8,9 +8,10 @@ COPY --from=fetch / /
 COPY --from=s6-box /etc/s6-overlay /etc/s6-overlay
 COPY --from=s6-box /pfm /pfm
 COPY --from=s6 / /
-RUN mkdir -pv /etc/s6-overlay/init-data/ && mkdir -pv /etc/s6-overlay/scripts
-COPY --from=db / /
+COPY --from=kvrocks / /
 COPY rootfs/ /
+
+RUN mkdir -pv /etc/s6-overlay/init-data/ && mkdir -pv /etc/s6-overlay/scripts
 
 ENV PATH="/command:/pfm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
      S6_LOGGING_SCRIPT="n2 s1000000 T" \
