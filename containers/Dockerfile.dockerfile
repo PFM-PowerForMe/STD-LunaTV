@@ -7,6 +7,7 @@ FROM scratch AS runtime
 COPY --from=fetch / /
 COPY --from=s6 / /
 COPY --from=s6-box /etc/s6-overlay /etc/s6-overlay
+RUN rm -rf /etc/s6-overlay/s6-rc.d/crond && rm -rf /etc/s6-overlay/s6-rc.d/user2/contents.d/crond
 COPY --from=s6-box /pfm /pfm
 COPY --from=kvrocks / /
 COPY rootfs/ /
